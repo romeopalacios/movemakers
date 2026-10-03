@@ -48,7 +48,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     submit.textContent='Sending request…';
     success.style.display='none';
     try{
-      const response=await fetch(quoteForm.action,{method:'POST',body:new FormData(quoteForm),headers:{Accept:'application/json'}});
+      const formData=new FormData(quoteForm);
+      formData.delete('_gotcha');
+      const response=await fetch(quoteForm.action,{method:'POST',body:formData,headers:{Accept:'application/json'}});
       if(!response.ok) throw new Error('Submission failed');
       quoteForm.reset();
       success.style.display='block';
