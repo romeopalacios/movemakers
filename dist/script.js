@@ -49,14 +49,21 @@ document.addEventListener('DOMContentLoaded',()=>{
     submit.textContent='Sending request…';
     success.style.display='none';
     try{
-      const formData=new FormData(quoteForm);
-      formData.delete('_gotcha');
+      const buildSubmissionData=()=>{
+        const data=new FormData(quoteForm);
+        data.delete('_gotcha');
+        quoteForm.querySelectorAll('[data-inventory-other]').forEach(field=>{
+          const value=field.value.trim();
+          if(value) data.append('inventory[]',`${field.dataset.category}: ${value}`);
+        });
+        return data;
+      };
+      const formData=buildSubmissionData();
       const response=await fetch(quoteForm.action,{method:'POST',body:formData,headers:{Accept:'application/json'}});
       if(!response.ok) throw new Error('Submission failed');
       let savedToSheet=true;
       try{
-        const sheetData=new FormData(quoteForm);
-        sheetData.delete('_gotcha');
+        const sheetData=buildSubmissionData();
         await fetch(sheetsEndpoint,{method:'POST',body:sheetData,mode:'no-cors'});
       }catch(error){savedToSheet=false}
       quoteForm.reset();
