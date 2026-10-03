@@ -50,12 +50,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     success.style.display='none';
     try{
       const buildSubmissionData=()=>{
-        const data=new FormData(quoteForm);
-        data.delete('_gotcha');
         quoteForm.querySelectorAll('[data-inventory-other]').forEach(field=>{
           const value=field.value.trim();
-          if(value) data.append('inventory[]',`${field.dataset.category}: ${value}`);
+          field.nextElementSibling.value=value?`${field.dataset.category}: ${value}`:'';
+          field.nextElementSibling.disabled=!value;
         });
+        const data=new FormData(quoteForm);
+        data.delete('_gotcha');
         return data;
       };
       const formData=buildSubmissionData();
