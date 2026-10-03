@@ -22,6 +22,23 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{if(validateStep()&&current<steps.length-1)show(current+1)}));
   document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{if(current>0)show(current-1)}));
 
+  const quickQuote=document.querySelector('form[data-quick-quote]');
+  if(quickQuote) quickQuote.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(!quickQuote.reportValidity()) return;
+    const params=new URLSearchParams(new FormData(quickQuote));
+    window.location.href=`quote.html?${params.toString()}`;
+  });
+
+  if(quoteForm){
+    const params=new URLSearchParams(window.location.search);
+    ['origin_zip','destination_zip','move_date','home_size'].forEach(name=>{
+      const value=params.get(name);
+      const field=quoteForm.elements.namedItem(name);
+      if(value&&field) field.value=value;
+    });
+  }
+
   if(quoteForm) quoteForm.addEventListener('submit',async e=>{
     e.preventDefault();
     if(!validateStep()) return;
