@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded',()=>{
+  const sheetsEndpoint='https://script.google.com/macros/s/AKfycbwZFeVB9n03fotukZS5KlRXE88lNcsLSAVbRSMdr_US4Qspfw4JOYJ9b8cyn6o6sUk/exec';
   const menu=document.querySelector('.menu-btn');
   const links=document.querySelector('.nav-links');
   if(menu&&links) menu.addEventListener('click',()=>links.classList.toggle('open'));
@@ -52,11 +53,17 @@ document.addEventListener('DOMContentLoaded',()=>{
       formData.delete('_gotcha');
       const response=await fetch(quoteForm.action,{method:'POST',body:formData,headers:{Accept:'application/json'}});
       if(!response.ok) throw new Error('Submission failed');
+      let savedToSheet=true;
+      try{
+        const sheetData=new FormData(quoteForm);
+        sheetData.delete('_gotcha');
+        await fetch(sheetsEndpoint,{method:'POST',body:sheetData,mode:'no-cors'});
+      }catch(error){savedToSheet=false}
       quoteForm.reset();
       success.style.display='block';
       success.style.background='#eef8f1';
       success.style.color='#25613c';
-      success.textContent='Your move request was sent. A coordinator will contact you after reviewing the details.';
+      success.textContent=savedToSheet?'Your move request was sent and added to the coordinator queue. A coordinator will contact you after reviewing the details.':'Your move request was sent, but the coordinator queue could not be updated. The team was still notified by email.';
       submit.textContent='Request received';
     }catch(error){
       success.style.display='block';
