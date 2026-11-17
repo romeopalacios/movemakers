@@ -143,9 +143,31 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   });
 
-  document.querySelectorAll('form[data-demo-form]').forEach(form=>form.addEventListener('submit',e=>{
+  const contactForm=document.querySelector('form[data-contact-form]');
+  if(contactForm) contactForm.addEventListener('submit',async e=>{
     e.preventDefault();
-    const success=form.querySelector('.success')||document.querySelector('.success');
-    if(success){success.style.display='block'; success.textContent='Demo submitted. Connect this form to your preferred CRM/webhook before launch.'}
-  }));
+    if(!contactForm.reportValidity()) return;
+    const submit=contactForm.querySelector('[data-contact-submit]');
+    const status=contactForm.querySelector('.success');
+    submit.disabled=true;
+    submit.textContent='Sending message…';
+    status.style.display='none';
+    try{
+      const response=await fetch(contactForm.action,{method:'POST',body:new FormData(contactForm),headers:{Accept:'application/json'}});
+      if(!response.ok) throw new Error('Submission failed');
+      contactForm.reset();
+      status.style.display='block';
+      status.style.background='#eef8f1';
+      status.style.color='#25613c';
+      status.textContent='Thank you for sending your message. We’ll be in touch soon.';
+      submit.textContent='Message sent';
+    }catch(error){
+      status.style.display='block';
+      status.style.background='#fff0ed';
+      status.style.color='#9f2f1f';
+      status.textContent='We could not send your message. Please check your connection and try again.';
+      submit.disabled=false;
+      submit.textContent='Send Message';
+    }
+  });
 });
