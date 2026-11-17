@@ -144,6 +144,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 
   const contactForm=document.querySelector('form[data-contact-form]');
+  const contactModal=document.querySelector('[data-contact-modal]');
+  const closeContactModal=()=>contactModal?.close();
+  document.querySelector('[data-contact-modal-close]')?.addEventListener('click',closeContactModal);
+  contactModal?.addEventListener('click',e=>{if(e.target===contactModal) closeContactModal()});
   if(contactForm) contactForm.addEventListener('submit',async e=>{
     e.preventDefault();
     if(!contactForm.reportValidity()) return;
@@ -156,10 +160,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       const response=await fetch(contactForm.action,{method:'POST',body:new FormData(contactForm),headers:{Accept:'application/json'}});
       if(!response.ok) throw new Error('Submission failed');
       contactForm.reset();
-      status.style.display='block';
-      status.style.background='#eef8f1';
-      status.style.color='#25613c';
       status.textContent='Thank you for sending your message. We’ll be in touch soon.';
+      if(contactModal?.showModal) contactModal.showModal();
+      else status.style.display='block';
       submit.textContent='Message sent';
     }catch(error){
       status.style.display='block';
